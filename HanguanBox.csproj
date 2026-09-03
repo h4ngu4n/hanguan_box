@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <UseWPF>true</UseWPF>
+    <RootNamespace>HanguanBox</RootNamespace>
+    <AssemblyName>HanguanBox</AssemblyName>
+    <ApplicationHighDpiMode>PerMonitorV2</ApplicationHighDpiMode>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- 将 MCL.core.dll 内嵌进程序集；文件不存在时不打断编译 -->
+    <EmbeddedResource Include="Assets\MCL.core.dll" LogicalName="MCL.core.dll"
+                      Condition="Exists('Assets\MCL.core.dll')"/>
+  </ItemGroup>
+
+</Project>
