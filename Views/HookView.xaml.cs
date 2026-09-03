@@ -34,6 +34,7 @@ public partial class HookView : UserControl
         _busy = true;
         BtnDetect.IsEnabled = false;
         BtnInject.IsEnabled = false;
+        BtnStartMc.IsEnabled = false;
         SetState("检测中…", "#F5C86B", "#33F5C86B");
         if (!firstRun) Log("正在自动查找启动器目录…");
 
@@ -61,6 +62,7 @@ public partial class HookView : UserControl
 
         BtnDetect.IsEnabled = true;
         BtnInject.IsEnabled = _targetDir is not null;
+        BtnStartMc.IsEnabled = _targetDir is not null;
         _busy = false;
     }
 
@@ -81,6 +83,7 @@ public partial class HookView : UserControl
         SetState("已选择", "#7BE3A8", "#3334C77B");
         Log($"手动指定启动器目录：{dir}");
         BtnInject.IsEnabled = true;
+        BtnStartMc.IsEnabled = true;
         _ = CheckInjectStatusAsync();
     }
 
@@ -96,9 +99,7 @@ public partial class HookView : UserControl
         }
 
         _busy = true;
-        BtnInject.IsEnabled = false;
-        BtnDetect.IsEnabled = false;
-        BtnBrowse.IsEnabled = false;
+        SetBusy(true);
 
         Log("―――― 开始注入 ――――");
 
@@ -121,15 +122,85 @@ public partial class HookView : UserControl
             return;
         }
 
-        // 1. 先关闭我的世界启动器
-        if (!await CloseLauncherAsync())
+        await InjectAsync(dir, srcMd5);
+        Finish();
+    }
+
+    // ---------- 启动 MC（未注入则先注入再启动） ----------
+    private async void BtnStartMc_Click(object sender, RoutedEventArgs e)
+    {
+        if (_busy) return;
+        string? dir = _targetDir;
+        if (dir is null)
         {
-            Log("无法关闭启动器，注入已取消。");
+            Log("尚未找到启动器目录，请先「自动查找」或「手动浏览」。");
+            return;
+        }
+
+        _busy = true;
+        SetBusy(true);
+
+        Log("―――― 启动 MC ――――");
+
+        string dest = Path.Combine(dir, HookDll);
+        string? srcMd5 = await McLauncher.GetSourceMd5Async();
+        if (srcMd5 is null)
+        {
+            Log($"错误：软件内没有内嵌 {HookDll}，根目录也没找到该文件，无法注入。");
             Finish();
             return;
         }
 
-        // 2. 将 MCL.core.dll 放入启动器目录（优先使用内嵌资源，其次软件根目录）
+        // 1. 未注入则先自动完成注入
+        if (File.Exists(dest) && await McLauncher.Md5OfFileAsync(dest) == srcMd5)
+        {
+            Log("已注入（MD5 校验一致），直接启动。");
+        }
+        else
+        {
+            Log("尚未注入或 DLL 有更新，先自动完成注入…");
+            if (!await InjectAsync(dir, srcMd5))
+            {
+                Finish();
+                return;
+            }
+        }
+
+        // 2. 启动我的世界启动器
+        string exe = Path.Combine(dir, McLauncher.ExeName);
+        if (!File.Exists(exe))
+        {
+            Log($"未找到 {McLauncher.ExeName}：{exe}");
+            Finish();
+            return;
+        }
+
+        try
+        {
+            Process.Start(new ProcessStartInfo(exe) { UseShellExecute = true, WorkingDirectory = dir });
+            Log($"我的世界启动器已启动：{exe}");
+        }
+        catch (Exception ex)
+        {
+            Log($"启动失败：{ex.Message}");
+        }
+
+        Finish();
+    }
+
+    // 注入流程：关闭启动器 → 写入 DLL，成功返回 true
+    private async Task<bool> InjectAsync(string dir, string srcMd5)
+    {
+        string dest = Path.Combine(dir, HookDll);
+
+        // 先关闭我的世界启动器
+        if (!await CloseLauncherAsync())
+        {
+            Log("无法关闭启动器，注入已取消。");
+            return false;
+        }
+
+        // 将 MCL.core.dll 放入启动器目录（优先使用内嵌资源，其次软件根目录）
         try
         {
             if (File.Exists(dest))
@@ -156,22 +227,28 @@ public partial class HookView : UserControl
 
             Log($"MD5：{srcMd5}");
             Log($"完成：{dest}");
-            Log("注入成功，现在可以重新启动我的世界启动器了。");
+            Log("注入成功。");
             SetInjectState("已注入", "#7BE3A8", "#3334C77B");
+            return true;
         }
         catch (Exception ex)
         {
             Log($"写入失败：{ex.Message}");
+            return false;
         }
+    }
 
-        Finish();
+    private void SetBusy(bool busy)
+    {
+        BtnDetect.IsEnabled = !busy;
+        BtnBrowse.IsEnabled = !busy;
+        BtnInject.IsEnabled = !busy && _targetDir is not null;
+        BtnStartMc.IsEnabled = !busy && _targetDir is not null;
     }
 
     private void Finish()
     {
-        BtnInject.IsEnabled = _targetDir is not null;
-        BtnDetect.IsEnabled = true;
-        BtnBrowse.IsEnabled = true;
+        SetBusy(false);
         _busy = false;
     }
 

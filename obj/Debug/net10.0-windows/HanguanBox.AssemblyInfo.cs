@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("HanguanBox")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+0ab2abc9a048c7ee7061f9b3ada876a3765745c9")]
 [assembly: System.Reflection.AssemblyProductAttribute("HanguanBox")]
 [assembly: System.Reflection.AssemblyTitleAttribute("HanguanBox")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
