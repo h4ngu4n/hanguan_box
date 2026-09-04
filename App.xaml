@@ -4,29 +4,50 @@
              StartupUri="MainWindow.xaml">
     <Application.Resources>
 
-        <SolidColorBrush x:Key="TextPrimary" Color="#F2FFFFFF"/>
-        <SolidColorBrush x:Key="TextSecondary" Color="#99FFFFFF"/>
-        <SolidColorBrush x:Key="Accent" Color="#4C8DFF"/>
-        <SolidColorBrush x:Key="Accent2" Color="#2F6BFF"/>
+        <!-- 主题：深空炭黑 + 薄荷绿 -->
+        <SolidColorBrush x:Key="TextPrimary" Color="#F0FFFFFF"/>
+        <SolidColorBrush x:Key="TextSecondary" Color="#96FFFFFF"/>
+        <SolidColorBrush x:Key="Accent" Color="#3DDC97"/>
+        <SolidColorBrush x:Key="Accent2" Color="#1FBF7F"/>
+        <SolidColorBrush x:Key="Green" Color="#34D399"/>
+        <SolidColorBrush x:Key="Danger" Color="#F87171"/>
+        <SolidColorBrush x:Key="Warn" Color="#FBBF24"/>
 
-        <!-- 全局蓝色调 -->
+        <!-- 品牌色（细微同色系过渡，整体扁平） -->
         <LinearGradientBrush x:Key="AccentGrad" StartPoint="0,0" EndPoint="1,1">
-            <GradientStop Color="#FF5EA0FF" Offset="0"/>
-            <GradientStop Color="#FF2F6BFF" Offset="1"/>
+            <GradientStop Color="#FF46E6A2" Offset="0"/>
+            <GradientStop Color="#FF1FC98B" Offset="1"/>
         </LinearGradientBrush>
 
+        <!-- 品牌色上的深色文字/图标 -->
+        <SolidColorBrush x:Key="OnAccent" Color="#FF07130D"/>
+
+        <!-- 卡片 -->
         <Style x:Key="Card" TargetType="Border">
-            <Setter Property="Background" Value="#1AFFFFFF"/>
-            <Setter Property="BorderBrush" Value="#1FFFFFFF"/>
+            <Setter Property="Background" Value="#0FFFFFFF"/>
+            <Setter Property="BorderBrush" Value="#0AFFFFFF"/>
             <Setter Property="BorderThickness" Value="1"/>
             <Setter Property="CornerRadius" Value="14"/>
-            <Setter Property="Padding" Value="18"/>
+            <Setter Property="Padding" Value="20"/>
         </Style>
 
-        <!-- 主按钮 -->
+        <!-- 状态徽标 -->
+        <Style x:Key="Badge" TargetType="Border">
+            <Setter Property="Background" Value="#1FFFFFFF"/>
+            <Setter Property="CornerRadius" Value="6"/>
+            <Setter Property="Padding" Value="8,2"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="BadgeText" TargetType="TextBlock">
+            <Setter Property="FontSize" Value="11"/>
+            <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
+        </Style>
+
+        <!-- 主按钮：品牌色 + 深色文字 -->
         <Style x:Key="PrimaryBtn" TargetType="Button">
             <Setter Property="Background" Value="{StaticResource AccentGrad}"/>
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Foreground" Value="{StaticResource OnAccent}"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="FontWeight" Value="Bold"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -40,10 +61,13 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Opacity" Value="0.88"/>
+                                <Setter TargetName="bd" Property="Opacity" Value="0.9"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Opacity" Value="0.78"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="bd" Property="Opacity" Value="0.4"/>
+                                <Setter TargetName="bd" Property="Opacity" Value="0.35"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -53,8 +77,8 @@
 
         <!-- 幽灵按钮 -->
         <Style x:Key="GhostBtn" TargetType="Button">
-            <Setter Property="Background" Value="#26FFFFFF"/>
-            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#0FFFFFFF"/>
+            <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Cursor" Value="Hand"/>
             <Setter Property="Padding" Value="0"/>
@@ -62,20 +86,145 @@
                 <Setter.Value>
                     <ControlTemplate TargetType="Button">
                         <Border x:Name="bd" Background="{TemplateBinding Background}" CornerRadius="10"
-                                BorderBrush="#66FFFFFF" BorderThickness="1" Padding="20,10">
+                                BorderBrush="#24FFFFFF" BorderThickness="1" Padding="20,10">
                             <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#40FFFFFF"/>
+                                <Setter TargetName="bd" Property="Background" Value="#1AFFFFFF"/>
+                            </Trigger>
+                            <Trigger Property="IsPressed" Value="True">
+                                <Setter TargetName="bd" Property="Background" Value="#0AFFFFFF"/>
                             </Trigger>
                             <Trigger Property="IsEnabled" Value="False">
-                                <Setter TargetName="bd" Property="Opacity" Value="0.4"/>
+                                <Setter TargetName="bd" Property="Opacity" Value="0.35"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
+        </Style>
+
+        <!-- 复选框 -->
+        <Style TargetType="CheckBox">
+            <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
+            <Setter Property="FontSize" Value="12"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="CheckBox">
+                        <StackPanel Background="Transparent" Orientation="Horizontal">
+                            <Border x:Name="box" Width="16" Height="16" CornerRadius="5"
+                                    Background="#14000000" BorderBrush="#33FFFFFF" BorderThickness="1"
+                                    VerticalAlignment="Center">
+                                <TextBlock x:Name="check" Text="&#xE73E;" FontFamily="Segoe MDL2 Assets" FontSize="9"
+                                           Foreground="{StaticResource OnAccent}" HorizontalAlignment="Center" VerticalAlignment="Center"
+                                           Visibility="Collapsed"/>
+                            </Border>
+                            <ContentPresenter Margin="8,0,0,0" VerticalAlignment="Center"/>
+                        </StackPanel>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsChecked" Value="True">
+                                <Setter TargetName="box" Property="Background" Value="{StaticResource AccentGrad}"/>
+                                <Setter TargetName="box" Property="BorderBrush" Value="Transparent"/>
+                                <Setter TargetName="check" Property="Visibility" Value="Visible"/>
+                            </Trigger>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter TargetName="box" Property="BorderBrush" Value="#66FFFFFF"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <!-- 进度条 -->
+        <Style TargetType="ProgressBar">
+            <Setter Property="Height" Value="6"/>
+            <Setter Property="Background" Value="#1AFFFFFF"/>
+            <Setter Property="BorderBrush" Value="Transparent"/>
+            <Setter Property="BorderThickness" Value="0"/>
+        </Style>
+
+        <!-- 滚动条 -->
+        <Style TargetType="ScrollBar">
+            <Setter Property="Background" Value="Transparent"/>
+            <Setter Property="Width" Value="8"/>
+            <Setter Property="MinWidth" Value="8"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="ScrollBar">
+                        <Grid Background="Transparent">
+                            <Track x:Name="PART_Track" IsDirectionReversed="True">
+                                <Track.DecreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageUpCommand" Opacity="0" Focusable="False"/>
+                                </Track.DecreaseRepeatButton>
+                                <Track.IncreaseRepeatButton>
+                                    <RepeatButton Command="ScrollBar.PageDownCommand" Opacity="0" Focusable="False"/>
+                                </Track.IncreaseRepeatButton>
+                                <Track.Thumb>
+                                    <Thumb>
+                                        <Thumb.Template>
+                                            <ControlTemplate TargetType="Thumb">
+                                                <Border x:Name="tb" Background="#30FFFFFF" CornerRadius="4" Margin="2,0"/>
+                                                <ControlTemplate.Triggers>
+                                                    <Trigger Property="IsMouseOver" Value="True">
+                                                        <Setter TargetName="tb" Property="Background" Value="#55FFFFFF"/>
+                                                    </Trigger>
+                                                    <Trigger Property="IsDragging" Value="True">
+                                                        <Setter TargetName="tb" Property="Background" Value="#77FFFFFF"/>
+                                                    </Trigger>
+                                                </ControlTemplate.Triggers>
+                                            </ControlTemplate>
+                                        </Thumb.Template>
+                                    </Thumb>
+                                </Track.Thumb>
+                            </Track>
+                        </Grid>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="Orientation" Value="Horizontal">
+                    <Setter Property="Width" Value="Auto"/>
+                    <Setter Property="MinWidth" Value="0"/>
+                    <Setter Property="Height" Value="8"/>
+                    <Setter Property="MinHeight" Value="8"/>
+                    <Setter Property="Template">
+                        <Setter.Value>
+                            <ControlTemplate TargetType="ScrollBar">
+                                <Grid Background="Transparent">
+                                    <Track x:Name="PART_Track">
+                                        <Track.DecreaseRepeatButton>
+                                            <RepeatButton Command="ScrollBar.PageLeftCommand" Opacity="0" Focusable="False"/>
+                                        </Track.DecreaseRepeatButton>
+                                        <Track.IncreaseRepeatButton>
+                                            <RepeatButton Command="ScrollBar.PageRightCommand" Opacity="0" Focusable="False"/>
+                                        </Track.IncreaseRepeatButton>
+                                        <Track.Thumb>
+                                            <Thumb>
+                                                <Thumb.Template>
+                                                    <ControlTemplate TargetType="Thumb">
+                                                        <Border x:Name="tb" Background="#30FFFFFF" CornerRadius="4" Margin="0,2"/>
+                                                        <ControlTemplate.Triggers>
+                                                            <Trigger Property="IsMouseOver" Value="True">
+                                                                <Setter TargetName="tb" Property="Background" Value="#55FFFFFF"/>
+                                                            </Trigger>
+                                                            <Trigger Property="IsDragging" Value="True">
+                                                                <Setter TargetName="tb" Property="Background" Value="#77FFFFFF"/>
+                                                            </Trigger>
+                                                        </ControlTemplate.Triggers>
+                                                    </ControlTemplate>
+                                                </Thumb.Template>
+                                            </Thumb>
+                                        </Track.Thumb>
+                                    </Track>
+                                </Grid>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
         </Style>
 
     </Application.Resources>

@@ -5,26 +5,29 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel>
 
-            <!-- 下载横幅 -->
-            <Border CornerRadius="16" Padding="22" Margin="0,0,0,14" Background="{StaticResource AccentGrad}">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="22" ShadowDepth="0" Opacity="0.32" Color="#4C8DFF"/>
-                </Border.Effect>
-                <StackPanel>
-                    <TextBlock Text="我的世界启动器下载" FontSize="20" FontWeight="Bold" Foreground="White"/>
-                    <TextBlock Text="一键下载官方 Windows 启动器，安装包保存到软件根目录，下载完成后运行安装程序即可。"
-                               Foreground="#E6FFFFFF" Margin="0,6,0,14" TextWrapping="Wrap" FontSize="12"/>
-                    <Button x:Name="BtnDownload" Content="下载启动器" Style="{StaticResource PrimaryBtn}"
-                            HorizontalAlignment="Left" Click="BtnDownload_Click"/>
+            <!-- 页头 -->
+            <StackPanel Margin="0,2,0,16">
+                <StackPanel Orientation="Horizontal">
+                    <Border Width="40" Height="40" CornerRadius="12" Background="{StaticResource AccentGrad}">
+                        <TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{StaticResource OnAccent}"
+                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                    </Border>
+                    <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                        <TextBlock Text="我的世界启动器下载" FontSize="17" FontWeight="Bold" Foreground="{StaticResource TextPrimary}"/>
+                        <TextBlock Text="一键下载官方 Windows 启动器，安装包保存到软件根目录，下载完成后运行安装程序即可。"
+                                   FontSize="12" Foreground="{StaticResource TextSecondary}" Margin="0,3,0,0" TextWrapping="Wrap"/>
+                    </StackPanel>
                 </StackPanel>
-            </Border>
+                <Button x:Name="BtnDownload" Content="下载启动器" Style="{StaticResource PrimaryBtn}"
+                        HorizontalAlignment="Left" Margin="0,12,0,0" Click="BtnDownload_Click"/>
+            </StackPanel>
 
             <!-- 下载须知 -->
             <Border Style="{StaticResource Card}" Margin="0,0,0,14">
                 <StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,0,0,8">
                         <TextBlock Text="&#xE7BA;" FontFamily="Segoe MDL2 Assets" FontSize="14"
-                                   Foreground="#8FC1FF" VerticalAlignment="Center"/>
+                                   Foreground="{StaticResource Accent}" VerticalAlignment="Center"/>
                         <TextBlock Text="下载须知" FontSize="13" FontWeight="Bold"
                                    Foreground="{StaticResource TextPrimary}" Margin="8,0,0,0" VerticalAlignment="Center"/>
                     </StackPanel>

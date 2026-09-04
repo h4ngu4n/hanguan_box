@@ -19,8 +19,8 @@
         <!-- 窗口按钮 -->
         <Style x:Key="WinBtn" TargetType="Button">
             <Setter Property="Width" Value="42"/>
-            <Setter Property="Height" Value="32"/>
-            <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
+            <Setter Property="Height" Value="30"/>
+            <Setter Property="Foreground" Value="#AAFFFFFF"/>
             <Setter Property="FontFamily" Value="Segoe MDL2 Assets"/>
             <Setter Property="FontSize" Value="10"/>
             <Setter Property="Cursor" Value="Hand"/>
@@ -32,7 +32,7 @@
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#1FFFFFFF"/>
+                                <Setter TargetName="bd" Property="Background" Value="#18FFFFFF"/>
                                 <Setter Property="Foreground" Value="White"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
@@ -59,31 +59,26 @@
             </Setter>
         </Style>
 
-        <!-- 左侧导航项 -->
+        <!-- 左侧导航项：选中 = 薄荷绿底 + 深色文字 -->
         <Style x:Key="NavRadio" TargetType="RadioButton">
-            <Setter Property="Foreground" Value="{StaticResource TextSecondary}"/>
-            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Foreground" Value="#8CFFFFFF"/>
+            <Setter Property="FontSize" Value="13"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Margin" Value="2,3"/>
+            <Setter Property="Margin" Value="0,1"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
-                        <Border x:Name="bd" Background="Transparent" CornerRadius="12" Padding="10,11">
+                        <Border x:Name="bd" Background="Transparent" CornerRadius="10" Padding="12,9">
                             <ContentPresenter VerticalAlignment="Center"/>
                         </Border>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#14FFFFFF"/>
+                                <Setter TargetName="bd" Property="Background" Value="#10FFFFFF"/>
                                 <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
                                 <Setter TargetName="bd" Property="Background" Value="{StaticResource AccentGrad}"/>
-                                <Setter TargetName="bd" Property="Effect">
-                                    <Setter.Value>
-                                        <DropShadowEffect BlurRadius="16" ShadowDepth="2" Opacity="0.45" Color="#5B8CFF"/>
-                                    </Setter.Value>
-                                </Setter>
-                                <Setter Property="Foreground" Value="White"/>
+                                <Setter Property="Foreground" Value="{StaticResource OnAccent}"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
@@ -93,35 +88,17 @@
     </Window.Resources>
 
     <Border x:Name="RootBorder" CornerRadius="16"
-            Background="#4D141419"
-            BorderBrush="#26FFFFFF" BorderThickness="1">
+            Background="#200D1210"
+            BorderBrush="#1FFFFFFF" BorderThickness="1">
 
         <Grid>
             <Grid.RowDefinitions>
-                <RowDefinition Height="56"/>
+                <RowDefinition Height="48"/>
                 <RowDefinition/>
             </Grid.RowDefinitions>
 
-            <!-- ======= 标题栏（可拖动） ======= -->
+            <!-- ======= 标题栏（可拖动，右侧窗口按钮） ======= -->
             <Grid Background="Transparent" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
-                <!-- 品牌区（左上角） -->
-                <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="20,0,0,0">
-                    <Border Width="34" Height="34" CornerRadius="10"
-                            Background="{StaticResource AccentGrad}">
-                        <Border.Effect>
-                            <DropShadowEffect BlurRadius="12" ShadowDepth="2" Opacity="0.45" Color="#4C8DFF"/>
-                        </Border.Effect>
-                        <TextBlock Text="竿" FontSize="15" FontWeight="Bold" Foreground="White"
-                                   HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                    </Border>
-                    <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
-                        <TextBlock Text="寒竿工具箱" FontSize="14" FontWeight="Bold"
-                                   Foreground="{StaticResource TextPrimary}"/>
-                        <TextBlock Text="HANGUAN BOX" FontSize="9"
-                                   Foreground="{StaticResource TextSecondary}" Margin="0,2,0,0"/>
-                    </StackPanel>
-                </StackPanel>
-
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
                             VerticalAlignment="Center" Margin="0,0,12,0">
                     <Button Style="{StaticResource WinBtn}" Content="&#xE921;" Click="Min_Click" ToolTip="最小化"/>
@@ -133,31 +110,49 @@
             <!-- ======= 主体：左菜单 + 右内容 ======= -->
             <Grid Grid.Row="1">
                 <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="264"/>
+                    <ColumnDefinition Width="232"/>
                     <ColumnDefinition Width="*"/>
                 </Grid.ColumnDefinitions>
 
                 <!-- 左侧菜单 -->
                 <Border Grid.Column="0" CornerRadius="16,0,0,16"
-                        BorderBrush="#14FFFFFF" BorderThickness="0,0,1,0">
+                        BorderBrush="#0FFFFFFF" BorderThickness="0,0,1,0">
                     <Border.Background>
                         <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                            <GradientStop Color="#22FFFFFF" Offset="0"/>
-                            <GradientStop Color="#08FFFFFF" Offset="1"/>
+                            <GradientStop Color="#16FFFFFF" Offset="0"/>
+                            <GradientStop Color="#04FFFFFF" Offset="1"/>
                         </LinearGradientBrush>
                     </Border.Background>
-                    <Grid Margin="12,10,12,12">
+                    <Grid Margin="12,6,12,12">
                         <Grid.RowDefinitions>
                             <RowDefinition Height="Auto"/>
+                            <RowDefinition Height="Auto"/>
                             <RowDefinition Height="*"/>
+                            <RowDefinition Height="Auto"/>
                         </Grid.RowDefinitions>
 
-                        <!-- MC 客户端导航 -->
-                        <StackPanel Grid.Row="0" Margin="0,6,0,0">
+                        <!-- 品牌区 -->
+                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="8,8,8,22">
+                            <Border Width="34" Height="34" CornerRadius="10"
+                                    Background="{StaticResource AccentGrad}">
+                                <TextBlock Text="竿" FontSize="15" FontWeight="Bold" Foreground="{StaticResource OnAccent}"
+                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                            </Border>
+                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
+                                <TextBlock Text="寒竿工具箱" FontSize="14" FontWeight="Bold"
+                                           Foreground="{StaticResource TextPrimary}"/>
+                                <TextBlock Text="HANGUAN BOX" FontSize="9"
+                                           Foreground="#66FFFFFF" Margin="0,2,0,0"/>
+                            </StackPanel>
+                        </StackPanel>
+
+                        <!-- 功能导航 -->
+                        <StackPanel Grid.Row="1">
+                            <TextBlock Text="功能" FontSize="11" Foreground="#52FFFFFF" Margin="14,0,0,8"/>
                             <RadioButton x:Name="NavMcLauncher" Style="{StaticResource NavRadio}" GroupName="nav"
                                          Tag="mclauncher" Checked="Nav_Checked">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="15"
+                                    <TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="14"
                                                Width="26" TextAlignment="Center"/>
                                     <TextBlock Text="下载我的世界启动器" VerticalAlignment="Center"/>
                                 </StackPanel>
@@ -165,11 +160,41 @@
                             <RadioButton x:Name="NavHook" Style="{StaticResource NavRadio}" GroupName="nav"
                                          Tag="hook" Checked="Nav_Checked">
                                 <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="&#xE720;" FontFamily="Segoe MDL2 Assets" FontSize="15"
+                                    <TextBlock Text="&#xE720;" FontFamily="Segoe MDL2 Assets" FontSize="14"
                                                Width="26" TextAlignment="Center"/>
                                     <TextBlock Text="注入 HOOK" VerticalAlignment="Center"/>
                                 </StackPanel>
                             </RadioButton>
+                            <RadioButton x:Name="NavClientInject" Style="{StaticResource NavRadio}" GroupName="nav"
+                                         Tag="clientinject" Checked="Nav_Checked">
+                                <StackPanel Orientation="Horizontal">
+                                    <TextBlock Text="&#xE7FC;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                               Width="26" TextAlignment="Center"/>
+                                    <TextBlock Text="客户端注入" VerticalAlignment="Center"/>
+                                </StackPanel>
+                            </RadioButton>
+                            <RadioButton x:Name="NavServerForward" Style="{StaticResource NavRadio}" GroupName="nav"
+                                         Tag="serverforward" Checked="Nav_Checked">
+                                <Grid>
+                                    <Grid.ColumnDefinitions>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                        <ColumnDefinition Width="*"/>
+                                        <ColumnDefinition Width="Auto"/>
+                                    </Grid.ColumnDefinitions>
+                                    <TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets" FontSize="14"
+                                               Width="26" TextAlignment="Center" VerticalAlignment="Center"/>
+                                    <TextBlock Grid.Column="1" Text="服务器native转发" VerticalAlignment="Center"/>
+                                    <Border Grid.Column="3" x:Name="ForwardBadge" Style="{StaticResource Badge}" Padding="7,2">
+                                        <TextBlock x:Name="TxtForwardState" Text="启动中…" Style="{StaticResource BadgeText}"/>
+                                    </Border>
+                                </Grid>
+                            </RadioButton>
+                        </StackPanel>
+
+                        <!-- 页脚版本 -->
+                        <StackPanel Grid.Row="3" Margin="14,0,0,2">
+                            <TextBlock Text="HANGUAN BOX · DEMO" FontSize="10" Foreground="#38FFFFFF"/>
                         </StackPanel>
                     </Grid>
                 </Border>
@@ -181,12 +206,12 @@
                         <RowDefinition Height="*"/>
                     </Grid.RowDefinitions>
 
-                    <StackPanel Orientation="Horizontal" Margin="26,8,26,12" VerticalAlignment="Center">
+                    <StackPanel Orientation="Horizontal" Margin="28,8,28,12" VerticalAlignment="Center">
                         <TextBlock x:Name="PageTitle" Text="下载我的世界启动器" FontSize="20" FontWeight="Bold"
                                    Foreground="{StaticResource TextPrimary}"/>
                     </StackPanel>
 
-                    <Border Grid.Row="1" Margin="26,0,26,22">
+                    <Border Grid.Row="1" Margin="28,0,28,20">
                         <ContentControl x:Name="PageHost" Focusable="False"/>
                     </Border>
                 </Grid>

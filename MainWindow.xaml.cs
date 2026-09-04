@@ -12,7 +12,7 @@ public partial class MainWindow : Window
 {
     private readonly Dictionary<string, UIElement> _views = new();
 
-    private const uint BlurTint = 0xB41E1E23u; // 窗口底色（AARRGGBB）
+    private const uint BlurTint = 0xE60D1210u; // 窗口底色（AARRGGBB）
 
     public MainWindow()
     {
@@ -20,8 +20,17 @@ public partial class MainWindow : Window
 
         _views["mclauncher"] = new Views.McLauncherView();
         _views["hook"] = new Views.HookView();
+        _views["clientinject"] = new Views.ClientInjectView();
+        _views["serverforward"] = new Views.ServerForwardView();
 
-        Loaded += (_, _) => BlurBackground.Enable(this, BlurTint, useAcrylic: true);
+        // 转发服务状态同步到左侧菜单徽标
+        NativeForward.StateChanged += running => Dispatcher.Invoke(() => UpdateForwardBadge(running));
+
+        Loaded += (_, _) =>
+        {
+            BlurBackground.Enable(this, BlurTint, useAcrylic: true);
+            Task.Run(NativeForward.LaunchOnStartup); // 软件启动时默认拉起转发服务
+        };
         NavMcLauncher.IsChecked = true;
     }
 
@@ -36,8 +45,29 @@ public partial class MainWindow : Window
         {
             "mclauncher" => "下载我的世界启动器",
             "hook" => "注入 HOOK",
+            "clientinject" => "客户端注入",
+            "serverforward" => "服务器native转发",
             _ => string.Empty
         };
+    }
+
+    // ---------- 转发服务徽标 ----------
+    private void UpdateForwardBadge(bool running)
+    {
+        TxtForwardState.Text = running ? "已启动" : "已停止";
+        TxtForwardState.Foreground = new System.Windows.Media.SolidColorBrush(
+            running ? System.Windows.Media.Color.FromRgb(0x7B, 0xE3, 0xA8)
+                    : System.Windows.Media.Color.FromRgb(0x99, 0xFF, 0xFF));
+        ForwardBadge.Background = new System.Windows.Media.SolidColorBrush(
+            running ? System.Windows.Media.Color.FromArgb(0x33, 0x34, 0xC7, 0x7B)
+                    : System.Windows.Media.Color.FromArgb(0x26, 0xFF, 0xFF, 0xFF));
+    }
+
+    protected override void OnClosed(EventArgs e)
+    {
+        // 退出软件时一并结束转发服务进程
+        NativeForward.Stop();
+        base.OnClosed(e);
     }
 
     // ---------- 标题栏 ----------

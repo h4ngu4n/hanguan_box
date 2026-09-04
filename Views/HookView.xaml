@@ -5,17 +5,18 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <StackPanel>
 
-            <!-- 横幅 -->
-            <Border CornerRadius="16" Padding="22" Margin="0,0,0,14" Background="{StaticResource AccentGrad}">
-                <Border.Effect>
-                    <DropShadowEffect BlurRadius="22" ShadowDepth="0" Opacity="0.32" Color="#4C8DFF"/>
-                </Border.Effect>
-                <StackPanel>
-                    <TextBlock Text="注入 HOOK" FontSize="20" FontWeight="Bold" Foreground="White"/>
-                    <TextBlock Text="自动关闭我的世界启动器，并将内置的 MCL.core.dll 放入启动器目录；目录自动查找，也可手动指定。"
-                               Foreground="#E6FFFFFF" Margin="0,6,0,0" TextWrapping="Wrap" FontSize="12"/>
+            <!-- 页头 -->
+            <StackPanel Orientation="Horizontal" Margin="0,2,0,16">
+                <Border Width="40" Height="40" CornerRadius="12" Background="{StaticResource AccentGrad}">
+                    <TextBlock Text="&#xE720;" FontFamily="Segoe MDL2 Assets" FontSize="16" Foreground="{StaticResource OnAccent}"
+                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                </Border>
+                <StackPanel Margin="12,0,0,0" VerticalAlignment="Center">
+                    <TextBlock Text="注入 HOOK" FontSize="17" FontWeight="Bold" Foreground="{StaticResource TextPrimary}"/>
+                    <TextBlock Text="将内置的 MCL.core.dll 写入启动器目录；目录自动查找，也可手动指定。"
+                               FontSize="12" Foreground="{StaticResource TextSecondary}" Margin="0,3,0,0" TextWrapping="Wrap"/>
                 </StackPanel>
-            </Border>
+            </StackPanel>
 
             <!-- 启动器目录与注入 -->
             <Border Style="{StaticResource Card}" Margin="0,0,0,14">
@@ -70,7 +71,7 @@
                     <TextBlock Text="执行日志" FontSize="13" FontWeight="Bold" Foreground="{StaticResource TextPrimary}" Margin="0,0,0,8"/>
                     <Border Background="#22000000" CornerRadius="10" Padding="12">
                         <ScrollViewer x:Name="LogScroll" MaxHeight="190" VerticalScrollBarVisibility="Auto">
-                            <TextBlock x:Name="TxtLog" Text="等待操作…" FontSize="12"
+                            <TextBlock x:Name="TxtLog" Text="等待操作…" FontSize="12" FontFamily="Consolas"
                                        Foreground="{StaticResource TextSecondary}" TextWrapping="Wrap" LineHeight="19"/>
                         </ScrollViewer>
                     </Border>
