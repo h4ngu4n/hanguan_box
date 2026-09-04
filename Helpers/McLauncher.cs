@@ -12,8 +12,8 @@ namespace HanguanBox.Helpers;
 /// <summary>我的世界启动器：目录查找、DLL 内嵌资源与 MD5 注入校验的公共逻辑</summary>
 internal static class McLauncher
 {
-    public const string ProcessName = "MCLauncher";
-    public const string ExeName = "MCLauncher.exe";
+    public const string ProcessName = "WPFLauncher";
+    public const string ExeName = "WPFLauncher.exe";
     public const string HookDll = "MCL.core.dll";
     public const string LauncherDirName = "MCLauncher";
 

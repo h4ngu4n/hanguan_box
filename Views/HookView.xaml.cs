@@ -44,10 +44,10 @@ public partial class HookView : UserControl
         if (dir is null)
         {
             _targetDir = null;
-            TxtHookPath.Text = "未找到，请点击「手动浏览」选择 MCLauncher.exe";
+            TxtHookPath.Text = "未找到，请点击「手动浏览」选择 WPFLauncher.exe";
             SetState("未找到", "#FF6B6B", "#33FF6B6B");
             Log(firstRun
-                ? "未能自动找到启动器目录，请点击「手动浏览」选择 MCLauncher.exe。"
+                ? "未能自动找到启动器目录，请点击「手动浏览」选择 WPFLauncher.exe。"
                 : "自动查找失败：未找到启动器目录。");
             SetInjectState("—", "#99FFFFFF", "#26FFFFFF");
         }
@@ -71,7 +71,7 @@ public partial class HookView : UserControl
         var dlg = new OpenFileDialog
         {
             Title = "选择我的世界启动器",
-            Filter = "我的世界启动器 (MCLauncher.exe)|MCLauncher.exe|所有程序 (*.exe)|*.exe"
+            Filter = "我的世界启动器 (WPFLauncher.exe)|WPFLauncher.exe|所有程序 (*.exe)|*.exe"
         };
         if (dlg.ShowDialog() is not true) return;
 
