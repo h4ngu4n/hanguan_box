@@ -7,6 +7,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Media;
 using System.Windows.Threading;
+using HanguanBox.Helpers;
 
 namespace HanguanBox.Views;
 
@@ -25,6 +26,7 @@ public partial class ClientInjectView : UserControl
 
     private readonly DispatcherTimer _timer;
     private bool _busy;
+    private bool _injecting;
     private int? _selectedPid;
     private string _lastFingerprint = string.Empty;
 
@@ -33,6 +35,10 @@ public partial class ClientInjectView : UserControl
         InitializeComponent();
         _timer = new DispatcherTimer { Interval = TimeSpan.FromSeconds(3) };
         _timer.Tick += (_, _) => _ = ScanAsync(auto: true);
+
+        // 默认开启自动刷新：创建页面即开始扫描（XAML 勾选状态仅用于用户手动暂停）
+        _timer.Start();
+        _ = ScanAsync(auto: true);
     }
 
     // ---------- 扫描入口 ----------
@@ -173,6 +179,73 @@ public partial class ClientInjectView : UserControl
         Log(info.HasWindow
             ? $"已选中窗口进程：PID {info.Pid}（{info.Title}）"
             : $"已选中进程：PID {info.Pid}（{info.Name}.exe，无窗口）");
+
+        UpdateInjectState();
+    }
+
+    // ---------- 注入 ----------
+    private InjectMethod? _method;
+
+    private void InjMethod_Changed(object sender, RoutedEventArgs e)
+    {
+        if (BtnInject is null || RbZenLoader is null) return; // XAML 初始化期间触发
+
+        _method = RbZenLoader.IsChecked == true ? ClientInject.ZenLoader : ClientInject.Vape421;
+        TxtVersionNote.Text = _method.VersionNote;
+        UpdateInjectState();
+    }
+
+    private void UpdateInjectState()
+    {
+        BtnInject.IsEnabled = _selectedPid is not null && !_injecting;
+        TxtInjectTarget.Text = _selectedPid is int pid ? $"目标 PID：{pid}" : "尚未选择进程";
+    }
+
+    private async void BtnInject_Click(object sender, RoutedEventArgs e)
+    {
+        if (_method is not InjectMethod method)
+        {
+            Log("请先选择注入方式。");
+            return;
+        }
+
+        if (_selectedPid is not int pid)
+        {
+            Log("请先在上方列表中选择一个 Java 进程。");
+            return;
+        }
+
+        // 版本要求确认：各注入方式对客户端版本有硬性要求
+        MessageBoxResult confirm = MessageBox.Show(
+            $"【{method.DisplayName}】{method.VersionNote}\n\n确定要对所选进程继续注入吗？",
+            "注入确认", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+        if (confirm != MessageBoxResult.Yes) return;
+
+        _injecting = true;
+        UpdateInjectState();
+        Log($"开始 {method.DisplayName} → PID {pid}（{method.CommandLine(pid)}）…");
+
+        try
+        {
+            (bool ok, int code, string output) = await Task.Run(() => ClientInject.InjectAsync(method, pid));
+
+            foreach (string line in output.Split('\n'))
+                if (!string.IsNullOrWhiteSpace(line)) Log("  " + line.TrimEnd());
+
+            if (ok)
+                Log("注入完成。");
+            else
+                Log($"注入失败（退出码 {code}）。{method.VersionNote}");
+        }
+        catch (Exception ex)
+        {
+            Log($"注入出错：{ex.Message}");
+        }
+        finally
+        {
+            _injecting = false;
+            UpdateInjectState();
+        }
     }
 
     // ---------- 日志 / 状态 ----------

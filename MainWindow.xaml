@@ -1,7 +1,8 @@
 <Window x:Class="HanguanBox.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="寒竿工具箱 Demo"
+        xmlns:materialDesign="http://materialdesigninxaml.net/winfx/xaml/themes"
+        Title="寒竿工具箱"
         Width="1080" Height="680" MinWidth="900" MinHeight="580"
         WindowStartupLocation="CenterScreen"
         WindowStyle="None" AllowsTransparency="True" Background="Transparent"
@@ -16,6 +17,8 @@
     </WindowChrome.WindowChrome>
 
     <Window.Resources>
+        <BooleanToVisibilityConverter x:Key="BoolToVis"/>
+
         <!-- 窗口按钮 -->
         <Style x:Key="WinBtn" TargetType="Button">
             <Setter Property="Width" Value="42"/>
@@ -59,161 +62,201 @@
             </Setter>
         </Style>
 
-        <!-- 左侧导航项：选中 = 薄荷绿底 + 深色文字 -->
+        <!-- 左侧导航项：图标 + 文字，选中带左侧指示条 -->
         <Style x:Key="NavRadio" TargetType="RadioButton">
-            <Setter Property="Foreground" Value="#8CFFFFFF"/>
+            <Setter Property="Foreground" Value="#99FFFFFF"/>
             <Setter Property="FontSize" Value="13"/>
             <Setter Property="Cursor" Value="Hand"/>
-            <Setter Property="Margin" Value="0,1"/>
+            <Setter Property="Margin" Value="10,2"/>
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="RadioButton">
-                        <Border x:Name="bd" Background="Transparent" CornerRadius="10" Padding="12,9">
-                            <ContentPresenter VerticalAlignment="Center"/>
-                        </Border>
+                        <Grid>
+                            <Border x:Name="bd" Background="Transparent" CornerRadius="10" Padding="14,10">
+                                <ContentPresenter VerticalAlignment="Center"/>
+                            </Border>
+                            <Border x:Name="ind" Width="3" CornerRadius="2" Margin="-7,8"
+                                    HorizontalAlignment="Left" VerticalAlignment="Stretch"
+                                    Background="{StaticResource Accent}" Visibility="Collapsed"/>
+                        </Grid>
                         <ControlTemplate.Triggers>
                             <Trigger Property="IsMouseOver" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="#10FFFFFF"/>
+                                <Setter TargetName="bd" Property="Background" Value="#12FFFFFF"/>
                                 <Setter Property="Foreground" Value="{StaticResource TextPrimary}"/>
                             </Trigger>
                             <Trigger Property="IsChecked" Value="True">
-                                <Setter TargetName="bd" Property="Background" Value="{StaticResource AccentGrad}"/>
-                                <Setter Property="Foreground" Value="{StaticResource OnAccent}"/>
+                                <Setter TargetName="bd" Property="Background" Value="#262196F3"/>
+                                <Setter TargetName="ind" Property="Visibility" Value="Visible"/>
+                                <Setter Property="Foreground" Value="White"/>
                             </Trigger>
                         </ControlTemplate.Triggers>
                     </ControlTemplate>
                 </Setter.Value>
             </Setter>
         </Style>
+
+        <!-- 页面切换动画：滑入 + 淡入（380ms） -->
+        <Storyboard x:Key="PageInStoryboard">
+            <DoubleAnimation Storyboard.TargetName="PageHost" Storyboard.TargetProperty="Opacity"
+                             From="0" To="1" Duration="0:0:0.38">
+                <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+            <DoubleAnimation Storyboard.TargetName="PageHost"
+                             Storyboard.TargetProperty="(UIElement.RenderTransform).(TranslateTransform.X)"
+                             From="56" To="0" Duration="0:0:0.38">
+                <DoubleAnimation.EasingFunction><CubicEase EasingMode="EaseOut"/></DoubleAnimation.EasingFunction>
+            </DoubleAnimation>
+        </Storyboard>
+
+        <!-- 加载动画：环形旋转 -->
+        <Storyboard x:Key="SpinnerStoryboard" RepeatBehavior="Forever">
+            <DoubleAnimation Storyboard.TargetName="SpinnerRotate" Storyboard.TargetProperty="Angle"
+                             From="0" To="360" Duration="0:0:0.9"/>
+        </Storyboard>
     </Window.Resources>
 
-    <Border x:Name="RootBorder" CornerRadius="16"
-            Background="#200D1210"
-            BorderBrush="#1FFFFFFF" BorderThickness="1">
+    <!-- 圆角窗口壳（8-12px） -->
+    <Border x:Name="RootBorder" CornerRadius="10" ClipToBounds="True"
+            Background="#FF14161F"
+            BorderBrush="#26FFFFFF" BorderThickness="1">
 
         <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="48"/>
-                <RowDefinition/>
-            </Grid.RowDefinitions>
-
-            <!-- ======= 标题栏（可拖动，右侧窗口按钮） ======= -->
-            <Grid Background="Transparent" MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
-                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
-                            VerticalAlignment="Center" Margin="0,0,12,0">
-                    <Button Style="{StaticResource WinBtn}" Content="&#xE921;" Click="Min_Click" ToolTip="最小化"/>
-                    <Button x:Name="MaxBtn" Style="{StaticResource WinBtn}" Content="&#xE922;" Click="Max_Click" ToolTip="最大化"/>
-                    <Button Style="{StaticResource WinBtnClose}" Content="&#xE8BB;" Click="Close_Click" ToolTip="关闭"/>
-                </StackPanel>
+            <!-- ===== 背景层：自定义图片 + BlurEffect 毛玻璃 + 压暗层（切换时交叉淡化） ===== -->
+            <Grid x:Name="BgHost">
+                <Image x:Name="BgImageA" Stretch="UniformToFill" Opacity="0">
+                    <Image.Effect>
+                        <BlurEffect Radius="35" KernelType="Gaussian"/>
+                    </Image.Effect>
+                </Image>
+                <Image x:Name="BgImageB" Stretch="UniformToFill" Opacity="0">
+                    <Image.Effect>
+                        <BlurEffect Radius="35" KernelType="Gaussian"/>
+                    </Image.Effect>
+                </Image>
+                <Rectangle Fill="{StaticResource ScrimBrush}"/>
             </Grid>
 
-            <!-- ======= 主体：左菜单 + 右内容 ======= -->
-            <Grid Grid.Row="1">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="232"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
+            <!-- ===== UI 层 ===== -->
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="48"/>
+                    <RowDefinition/>
+                </Grid.RowDefinitions>
 
-                <!-- 左侧菜单 -->
-                <Border Grid.Column="0" CornerRadius="16,0,0,16"
-                        BorderBrush="#0FFFFFFF" BorderThickness="0,0,1,0">
-                    <Border.Background>
-                        <LinearGradientBrush StartPoint="0,0" EndPoint="0,1">
-                            <GradientStop Color="#16FFFFFF" Offset="0"/>
-                            <GradientStop Color="#04FFFFFF" Offset="1"/>
-                        </LinearGradientBrush>
-                    </Border.Background>
-                    <Grid Margin="12,6,12,12">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="Auto"/>
-                            <RowDefinition Height="*"/>
-                            <RowDefinition Height="Auto"/>
-                        </Grid.RowDefinitions>
-
-                        <!-- 品牌区 -->
-                        <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="8,8,8,22">
-                            <Border Width="34" Height="34" CornerRadius="10"
-                                    Background="{StaticResource AccentGrad}">
-                                <TextBlock Text="竿" FontSize="15" FontWeight="Bold" Foreground="{StaticResource OnAccent}"
-                                           HorizontalAlignment="Center" VerticalAlignment="Center"/>
-                            </Border>
-                            <StackPanel Margin="10,0,0,0" VerticalAlignment="Center">
-                                <TextBlock Text="寒竿工具箱" FontSize="14" FontWeight="Bold"
-                                           Foreground="{StaticResource TextPrimary}"/>
-                                <TextBlock Text="HANGUAN BOX" FontSize="9"
-                                           Foreground="#66FFFFFF" Margin="0,2,0,0"/>
-                            </StackPanel>
+                <!-- ===== 顶部标题栏：页面标题 + 窗口按钮（可拖动） ===== -->
+                <Border Grid.Row="0" Background="Transparent"
+                        MouseLeftButtonDown="TitleBar_MouseLeftButtonDown">
+                    <Grid>
+                        <StackPanel Orientation="Horizontal" VerticalAlignment="Center" Margin="18,0,0,0">
+                            <TextBlock Text="{Binding PageTitle}" FontSize="14" FontWeight="SemiBold"
+                                       Foreground="{StaticResource TextPrimary}" VerticalAlignment="Center"/>
                         </StackPanel>
 
-                        <!-- 功能导航 -->
-                        <StackPanel Grid.Row="1">
-                            <TextBlock Text="功能" FontSize="11" Foreground="#52FFFFFF" Margin="14,0,0,8"/>
-                            <RadioButton x:Name="NavMcLauncher" Style="{StaticResource NavRadio}" GroupName="nav"
-                                         Tag="mclauncher" Checked="Nav_Checked">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="&#xE896;" FontFamily="Segoe MDL2 Assets" FontSize="14"
-                                               Width="26" TextAlignment="Center"/>
-                                    <TextBlock Text="下载我的世界启动器" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </RadioButton>
-                            <RadioButton x:Name="NavHook" Style="{StaticResource NavRadio}" GroupName="nav"
-                                         Tag="hook" Checked="Nav_Checked">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="&#xE720;" FontFamily="Segoe MDL2 Assets" FontSize="14"
-                                               Width="26" TextAlignment="Center"/>
-                                    <TextBlock Text="注入 HOOK" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </RadioButton>
-                            <RadioButton x:Name="NavClientInject" Style="{StaticResource NavRadio}" GroupName="nav"
-                                         Tag="clientinject" Checked="Nav_Checked">
-                                <StackPanel Orientation="Horizontal">
-                                    <TextBlock Text="&#xE7FC;" FontFamily="Segoe MDL2 Assets" FontSize="14"
-                                               Width="26" TextAlignment="Center"/>
-                                    <TextBlock Text="客户端注入" VerticalAlignment="Center"/>
-                                </StackPanel>
-                            </RadioButton>
-                            <RadioButton x:Name="NavServerForward" Style="{StaticResource NavRadio}" GroupName="nav"
-                                         Tag="serverforward" Checked="Nav_Checked">
-                                <Grid>
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                        <ColumnDefinition Width="*"/>
-                                        <ColumnDefinition Width="Auto"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock Text="&#xE774;" FontFamily="Segoe MDL2 Assets" FontSize="14"
-                                               Width="26" TextAlignment="Center" VerticalAlignment="Center"/>
-                                    <TextBlock Grid.Column="1" Text="服务器native转发" VerticalAlignment="Center"/>
-                                    <Border Grid.Column="3" x:Name="ForwardBadge" Style="{StaticResource Badge}" Padding="7,2">
-                                        <TextBlock x:Name="TxtForwardState" Text="启动中…" Style="{StaticResource BadgeText}"/>
-                                    </Border>
-                                </Grid>
-                            </RadioButton>
-                        </StackPanel>
-
-                        <!-- 页脚版本 -->
-                        <StackPanel Grid.Row="3" Margin="14,0,0,2">
-                            <TextBlock Text="HANGUAN BOX · DEMO" FontSize="10" Foreground="#38FFFFFF"/>
+                        <StackPanel Orientation="Horizontal" HorizontalAlignment="Right"
+                                    VerticalAlignment="Center" Margin="0,0,12,0">
+                            <Button Style="{StaticResource WinBtn}" Content="&#xE921;" Click="Min_Click" ToolTip="最小化"/>
+                            <Button x:Name="MaxBtn" Style="{StaticResource WinBtn}" Content="&#xE922;" Click="Max_Click" ToolTip="最大化"/>
+                            <Button Style="{StaticResource WinBtnClose}" Content="&#xE8BB;" Click="Close_Click" ToolTip="关闭"/>
                         </StackPanel>
                     </Grid>
                 </Border>
 
-                <!-- 右侧内容 -->
-                <Grid Grid.Column="1">
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="Auto"/>
-                        <RowDefinition Height="*"/>
-                    </Grid.RowDefinitions>
+                <Grid Grid.Row="1">
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition Width="212"/>
+                        <ColumnDefinition Width="*"/>
+                    </Grid.ColumnDefinitions>
 
-                    <StackPanel Orientation="Horizontal" Margin="28,8,28,12" VerticalAlignment="Center">
-                        <TextBlock x:Name="PageTitle" Text="下载我的世界启动器" FontSize="20" FontWeight="Bold"
-                                   Foreground="{StaticResource TextPrimary}"/>
-                    </StackPanel>
+                    <!-- ===== 左侧导航栏 ===== -->
+                    <Border Grid.Column="0" CornerRadius="10,0,0,10"
+                            BorderBrush="#0FFFFFFF" BorderThickness="0,0,1,0">
+                        <Border.Background>
+                            <LinearGradientBrush StartPoint="0,0" EndPoint="1,0">
+                                <GradientStop Color="#24000000" Offset="0"/>
+                                <GradientStop Color="#00000000" Offset="1"/>
+                            </LinearGradientBrush>
+                        </Border.Background>
+                        <Grid Margin="0,6,0,12">
+                            <Grid.RowDefinitions>
+                                <RowDefinition Height="Auto"/>
+                                <RowDefinition Height="*"/>
+                                <RowDefinition Height="Auto"/>
+                            </Grid.RowDefinitions>
 
-                    <Border Grid.Row="1" Margin="28,0,28,20">
-                        <ContentControl x:Name="PageHost" Focusable="False"/>
+                            <!-- 品牌区（扁平：纯色方块，无光效） -->
+                            <StackPanel Grid.Row="0" Orientation="Horizontal" Margin="16,4,16,20">
+                                <Border Width="36" Height="36" CornerRadius="10"
+                                        Background="{StaticResource Accent}">
+                                    <TextBlock Text="竿" FontSize="16" FontWeight="Bold" Foreground="White"
+                                               HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                </Border>
+                                <StackPanel Margin="11,0,0,0" VerticalAlignment="Center">
+                                    <TextBlock Text="寒竿工具箱" FontSize="14" FontWeight="Bold"
+                                               Foreground="{StaticResource TextPrimary}"/>
+                                    <TextBlock Text="HANGUAN BOX" FontSize="9" Foreground="#66FFFFFF" Margin="0,2,0,0"/>
+                                </StackPanel>
+                            </StackPanel>
+
+                            <!-- 导航项（扁平文字） -->
+                            <StackPanel Grid.Row="1" VerticalAlignment="Top">
+                                <RadioButton Style="{StaticResource NavRadio}" GroupName="nav"
+                                             x:Name="NavNotes" Tag="notes" Checked="Nav_Checked"
+                                             Content="注意事项"/>
+                                <RadioButton Style="{StaticResource NavRadio}" GroupName="nav"
+                                             x:Name="NavMcLauncher" Tag="mclauncher" Checked="Nav_Checked"
+                                             Content="下载启动器"/>
+                                <RadioButton Style="{StaticResource NavRadio}" GroupName="nav"
+                                             x:Name="NavHook" Tag="hook" Checked="Nav_Checked"
+                                             Content="注入 HOOK"/>
+                                <RadioButton Style="{StaticResource NavRadio}" GroupName="nav"
+                                             x:Name="NavClientInject" Tag="clientinject" Checked="Nav_Checked"
+                                             Content="客户端注入"/>
+                                <RadioButton Style="{StaticResource NavRadio}" GroupName="nav"
+                                             x:Name="NavSettings" Tag="settings" Checked="Nav_Checked"
+                                             Content="设置"/>
+                            </StackPanel>
+
+                            <!-- 左下角：转发服务 + 版本 -->
+                            <StackPanel Grid.Row="2">
+                                <Border Height="1" Background="#14FFFFFF" Margin="20,6,20,8"/>
+                                <RadioButton Style="{StaticResource NavRadio}" GroupName="nav"
+                                             x:Name="NavServerForward" Tag="serverforward" Checked="Nav_Checked">
+                                    <StackPanel Orientation="Horizontal">
+                                        <TextBlock Text="服务器转发" VerticalAlignment="Center"/>
+                                        <Border x:Name="ForwardBadge" Style="{StaticResource Badge}" Padding="7,1"
+                                                Margin="9,0,0,0">
+                                            <TextBlock x:Name="TxtForwardState" Text="启动中…" Style="{StaticResource BadgeText}"/>
+                                        </Border>
+                                    </StackPanel>
+                                </RadioButton>
+                                <TextBlock Text="HANGUAN BOX · DEMO" FontSize="10"
+                                           Foreground="#38FFFFFF" Margin="26,8,0,0"/>
+                            </StackPanel>
+                        </Grid>
                     </Border>
+
+                    <!-- ===== 主内容区域：页面切换动画 + 加载指示器 ===== -->
+                    <Grid Grid.Column="1">
+                        <ContentControl x:Name="PageHost" Focusable="False" Margin="26,4,26,20" IsTabStop="False">
+                            <ContentControl.RenderTransform>
+                                <TranslateTransform x:Name="PageTranslate" X="0"/>
+                            </ContentControl.RenderTransform>
+                        </ContentControl>
+
+                        <!-- 环形加载指示器（Material 风格） -->
+                        <Grid x:Name="Loader" Visibility="{Binding IsBusy, Converter={StaticResource BoolToVis}}">
+                            <Grid Background="#660A0C12"/>
+                            <Grid Width="64" Height="64" HorizontalAlignment="Center" VerticalAlignment="Center">
+                                <Ellipse Stroke="#22FFFFFF" StrokeThickness="5"/>
+                                <Path Data="M 32,7 A 25,25 0 1 1 10.35,20.75"
+                                      Stroke="{StaticResource Accent2}" StrokeThickness="5" StrokeStartLineCap="Round"
+                                      StrokeEndLineCap="Round" RenderTransformOrigin="0,0"/>
+                                <Grid.RenderTransform>
+                                    <RotateTransform x:Name="SpinnerRotate" CenterX="32" CenterY="32" Angle="0"/>
+                                </Grid.RenderTransform>
+                            </Grid>
+                        </Grid>
+                    </Grid>
                 </Grid>
             </Grid>
         </Grid>
